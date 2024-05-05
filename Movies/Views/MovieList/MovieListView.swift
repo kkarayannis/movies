@@ -6,15 +6,27 @@ struct MovieListView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var movies: [Movie] = []
     
-    var columns: [GridItem] {
+    private var twoColumns: [GridItem] {
+        [GridItem(.flexible()), GridItem(.flexible())]
+    }
+    
+    private var fourColumns: [GridItem] {
+        [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+    }
+    
+    private var columns: [GridItem] {
+#if os(tvOS)
+        fourColumns
+#else
         switch horizontalSizeClass {
         case .compact:
-            [GridItem(.flexible()), GridItem(.flexible())]
+            twoColumns
         case .regular:
-            [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+            fourColumns
         default:
-            [GridItem(.flexible()), GridItem(.flexible())]
+            twoColumns
         }
+#endif
     }
     
     var body: some View {
@@ -26,6 +38,9 @@ struct MovieListView: View {
                         Text(verbatim: movie.title)
                             .lineLimit(3, reservesSpace: true)
                     }
+#if os(tvOS)
+                    .focusable()
+#endif
                 }
             }
             .padding([.leading, .trailing])

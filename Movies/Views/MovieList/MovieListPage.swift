@@ -22,7 +22,7 @@ final class MovieListPage: Page {
         viewModel.pageStatePublisher
     }
     
-    var titleDisplayMode: NavigationBarItem.TitleDisplayMode {
+    var titleDisplayMode: ToolbarTitleDisplayMode {
         .inline
     }
     

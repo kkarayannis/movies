@@ -22,7 +22,7 @@ final class GenreListPage: Page {
         viewModel.pageStatePublisher
     }
     
-    var titleDisplayMode: NavigationBarItem.TitleDisplayMode {
+    var titleDisplayMode: ToolbarTitleDisplayMode {
         .automatic
     }
     

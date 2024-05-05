@@ -5,6 +5,7 @@ import SwiftUI
 struct PosterView: View {
     private let viewModel: ImageViewModel
     @State private var image: UIImage? = nil
+    @Environment(\.isFocused) var isFocused
     
     init(viewModel: ImageViewModel) {
         self.viewModel = viewModel
@@ -19,6 +20,10 @@ struct PosterView: View {
                 Image(uiImage: image)
                     .resizable()
                     .shadow(radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+#if os(tvOS)
+                    .scaleEffect(isFocused ? 1.05 : 1)
+                    .animation(.easeInOut, value: isFocused)
+#endif
             } else {
                 Color.gray
             }
