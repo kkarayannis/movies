@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 
 /// View that displays the images
-struct PosterView: View {
+struct PosterView: View, Equatable {
     private let viewModel: ImageViewModel
     @State private var image: UIImage? = nil
     @Environment(\.isFocused) var isFocused
@@ -32,5 +32,9 @@ struct PosterView: View {
         .onReceive(viewModel.$image) {
             image = $0
         }
+    }
+    
+    static func == (lhs: PosterView, rhs: PosterView) -> Bool {
+        lhs.viewModel.url == rhs.viewModel.url
     }
 }

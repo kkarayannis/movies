@@ -35,6 +35,7 @@ struct MovieListView: View {
                 ForEach(movies) { movie in
                     VStack {
                         PosterView(viewModel: viewModel.imageViewModel(for: movie))
+                            .equatable()
                         Text(verbatim: movie.title)
                             .lineLimit(3, reservesSpace: true)
                     }
