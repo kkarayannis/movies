@@ -38,9 +38,10 @@ struct MovieListView: View {
                         Text(verbatim: movie.title)
                             .lineLimit(3, reservesSpace: true)
                     }
-#if os(tvOS)
                     .focusable()
-#endif
+                    .onAppear {
+                        viewModel.handleOnAppear(movieID: movie.id)
+                    }
                 }
             }
             .padding([.leading, .trailing])

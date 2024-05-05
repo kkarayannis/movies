@@ -32,7 +32,7 @@ final class GenreListLoaderImplementation: GenreListLoader {
                 self?.logger.log(error.localizedDescription, logLevel: .error)
                 return DataLoaderError.networkError
             }
-            .cache(PublisherCacheImplementation(key: Self.genreListCacheKey.base64, cache: cache))
+            .cacheFirst(PublisherCacheImplementation(key: Self.genreListCacheKey.base64, cache: cache))
             .tryMap {
                 try JSONDecoder().decode(GenreListResponse.self, from: $0).genres
             }

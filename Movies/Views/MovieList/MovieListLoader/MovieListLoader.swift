@@ -5,7 +5,7 @@ import Cache
 import DataLoader
 
 protocol MovieListLoader {
-    func moviesPublisher(genreID: Int) -> AnyPublisher<GenreMoviesResponse, Error>
+    func moviesPublisher(genreID: Int, page: Int) -> AnyPublisher<GenreMoviesResponse, Error>
 }
 
 final class MovieListLoaderImplementation: MovieListLoader {
@@ -20,8 +20,8 @@ final class MovieListLoaderImplementation: MovieListLoader {
         self.cache = cache
     }
     
-    func moviesPublisher(genreID: Int) -> AnyPublisher<GenreMoviesResponse, Error> {
-        guard let url = URL(string: TMDB.Endpoint.genreMovies(genreID)) else {
+    func moviesPublisher(genreID: Int, page: Int) -> AnyPublisher<GenreMoviesResponse, Error> {
+        guard let url = URL(string: TMDB.Endpoint.genreMovies(genreID, page: page)) else {
             return Fail(error: DataLoaderError.invalidURL)
                 .eraseToAnyPublisher()
         }
@@ -32,10 +32,26 @@ final class MovieListLoaderImplementation: MovieListLoader {
                 self?.logger.log(error.localizedDescription, logLevel: .error)
                 return DataLoaderError.networkError
             }
-            .cache(PublisherCacheImplementation(key: (Self.movieListCacheKey + String(genreID)).base64, cache: cache))
+            .if(page == 1) { // Only cache first page
+                $0.cacheStaleWhileRevalidate(
+                    PublisherCacheImplementation(key: (Self.movieListCacheKey + String(genreID)).base64, cache: cache)
+                )
+            }
             .tryMap {
                 try JSONDecoder().decode(GenreMoviesResponse.self, from: $0)
             }
+            .eraseToAnyPublisher()
+    }
+}
+
+extension Publisher {
+    func `if`(_ condition: Bool, modifier: (any Publisher<Output, Failure>) -> any Publisher<Output, Failure>) -> AnyPublisher<Output, Failure> {
+        if condition {
+            return modifier(self)
+                .eraseToAnyPublisher()
+        }
+        
+        return self
             .eraseToAnyPublisher()
     }
 }
