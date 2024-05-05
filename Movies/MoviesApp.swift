@@ -1,17 +1,12 @@
-//
-//  MoviesApp.swift
-//  Movies
-//
-//  Created by Konstadinos Karayannis on 03/05/2024.
-//
-
 import SwiftUI
 
 @main
 struct MoviesApp: App {
+    private let serviceProvider = ServiceProviderImplementation()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationCoordinator(rootPageType: .genreList, pageFactory: serviceProvider.providePageFactory())
         }
     }
 }
