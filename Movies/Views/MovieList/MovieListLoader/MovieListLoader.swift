@@ -32,7 +32,7 @@ final class MovieListLoaderImplementation: MovieListLoader {
                 self?.logger.log(error.localizedDescription, logLevel: .error)
                 return DataLoaderError.networkError
             }
-            .if(page == 1) { // Only cache first page
+            .transformIf(page == 1) { // Only cache first page
                 $0.cache(
                     PublisherCacheImplementation(key: (Self.movieListCacheKey + String(genreID)).base64, cache: cache),
                     strategy: .staleWhileRevalidate
@@ -45,10 +45,10 @@ final class MovieListLoaderImplementation: MovieListLoader {
     }
 }
 
-extension Publisher {
-    func `if`(_ condition: Bool, modifier: (any Publisher<Output, Failure>) -> any Publisher<Output, Failure>) -> AnyPublisher<Output, Failure> {
+private extension Publisher {
+    func transformIf(_ condition: Bool, transform: (any Publisher<Output, Failure>) -> any Publisher<Output, Failure>) -> AnyPublisher<Output, Failure> {
         if condition {
-            return modifier(self)
+            return transform(self)
                 .eraseToAnyPublisher()
         }
         
