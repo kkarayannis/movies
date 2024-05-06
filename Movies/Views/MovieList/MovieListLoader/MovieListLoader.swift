@@ -33,8 +33,9 @@ final class MovieListLoaderImplementation: MovieListLoader {
                 return DataLoaderError.networkError
             }
             .if(page == 1) { // Only cache first page
-                $0.cacheStaleWhileRevalidate(
-                    PublisherCacheImplementation(key: (Self.movieListCacheKey + String(genreID)).base64, cache: cache)
+                $0.cache(
+                    PublisherCacheImplementation(key: (Self.movieListCacheKey + String(genreID)).base64, cache: cache),
+                    strategy: .staleWhileRevalidate
                 )
             }
             .tryMap {

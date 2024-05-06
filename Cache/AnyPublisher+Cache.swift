@@ -1,13 +1,33 @@
 import Combine
 import Foundation
 
+/// Different caching strategies. Can affect the number of elements emiited as well as if the upstream publisher receives a subscriber.
+public enum CachingStrategy {
+    ///   - If the cache has a hit then only the cache's element is published and the upstream publisher never receives a subscriber. Useful
+    ///   if we want to conserve bandwidth/backend resources.
+    ///   - If the cache has a miss then only the upstream elements are published.
+    case cacheFirst
+    ///   - If the cache has a hit then the cache's element is published and then the upstream's element follows. Useful for showing content quickly
+    ///   while making sure the content stays updated.
+    ///   - If the cache has a miss then only the upstream elements are published.
+    ///   - If for some reason the upstream publisher produces an element before the cache produces it's element, the cache's element is ignored (not published).
+    ///   - The cache never emits any errors.
+    ///   - The upstream publisher's errors are emitted but only if the cache hasn't emitted any elements. If it has, then this publisher finishes without an error.
+    case staleWhileRevalidate
+}
+
 extension Publisher<Data, Error> {
     
-    /// This stores a publisher's latest element to a cache and uses a simple Cache-First strategy.
-    /// - Note:
-    ///   - If the cache has a hit then only the cache's element is published.
-    ///   - If the cache has a miss then only the upstream elements are published.
-    public func cacheFirst(_ cache: PublisherCache) -> AnyPublisher<Data, Error> {
+    public func cache(_ cache: PublisherCache, strategy: CachingStrategy) -> AnyPublisher<Data, Error> {
+        switch strategy {
+        case .cacheFirst:
+            return cacheFirst(cache)
+        case .staleWhileRevalidate:
+            return cacheStaleWhileRevalidate(cache)
+        }
+    }
+    
+    private func cacheFirst(_ cache: PublisherCache) -> AnyPublisher<Data, Error> {
         if let cachedElement = cache.cachedData {
             return Just(cachedElement)
                 .setFailureType(to: Error.self)
@@ -21,14 +41,7 @@ extension Publisher<Data, Error> {
             .eraseToAnyPublisher()
     }
     
-    /// This stores a publisher's latest element to a cache and uses a Stale-While-Revalidate strategy.
-    /// - Note:
-    ///   - If the cache has a miss then only the upstream elements are published.
-    ///   - If the cache has a hit then the cache's element is published and then the upstream's element follows.
-    ///   - If for some reason the upstream publisher produces an element before the cache produces it's element, the cache's element is ignored (not published).
-    ///   - The cache never emits any errors.
-    ///   - The upstream publisher's errors are emitted but only if the cache hasn't emitted any elements. If it has, then this publisher finishes without an error.
-    public func cacheStaleWhileRevalidate(_ cache: PublisherCache) -> AnyPublisher<Data, Error> {
+    private func cacheStaleWhileRevalidate(_ cache: PublisherCache) -> AnyPublisher<Data, Error> {
         let upstream = self.share()
         cache.cacheElements(from: upstream)
         

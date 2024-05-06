@@ -51,7 +51,7 @@ public final class CacheImplementation: Cache {
     }
 }
 
-private struct TimestampedData: Codable {
+struct TimestampedData: Codable {
     let timestamp: Date
     let data: Data
     

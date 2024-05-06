@@ -29,7 +29,10 @@ public final class ImageLoaderImplementation: ImageLoader {
                 // Handle network error more granularly if needed here.
                 return DataLoaderError.networkError
             }
-            .cacheStaleWhileRevalidate(PublisherCacheImplementation(key: url.absoluteString.base64, cache: cache))
+            .cache(
+                PublisherCacheImplementation(key: url.absoluteString.base64, cache: cache),
+                strategy: .staleWhileRevalidate
+            )
             .tryMap {
                 guard let image = UIImage(data: $0 ) else {
                     throw ImageLoaderError.imageDecodingError
