@@ -17,6 +17,7 @@ enum ImageLoaderError: Error {
 public final class ImageLoaderImplementation: ImageLoader {
     private let dataLoader: DataLoader
     private let cache: Cache
+    private let serialQueue = DispatchQueue(label: "queuename", qos: .default)
     
     public init(dataLoader: DataLoader, cache: Cache) {
         self.dataLoader = dataLoader
@@ -33,8 +34,9 @@ public final class ImageLoaderImplementation: ImageLoader {
                 PublisherCacheImplementation(key: url.absoluteString.base64, cache: cache),
                 strategy: .staleWhileRevalidate
             )
+            .receive(on: serialQueue)
             .tryMap {
-                guard let image = UIImage(data: $0 ) else {
+                guard let image = UIImage(data: $0)?.preparingForDisplay() else {
                     throw ImageLoaderError.imageDecodingError
                 }
                 return image
