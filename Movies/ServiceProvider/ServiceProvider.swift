@@ -6,7 +6,7 @@ import ImageLoader
 
 protocol ServiceProvider {
     func provideDataLoader() -> DataLoader
-    func providePageFactory() -> PageFactory
+    func providePageLoaderFactory() -> PageLoaderFactory
 }
 
 final class ServiceProviderImplementation: ServiceProvider {
@@ -15,7 +15,7 @@ final class ServiceProviderImplementation: ServiceProvider {
     private let cache24h = CacheImplementation(fileManager: FileManager.default, expirationInterval: 86_400)
     private let cache = CacheImplementation(fileManager: FileManager.default)
     private lazy var imageLoader = ImageLoaderImplementation(dataLoader: dataLoader, cache: cache)
-    private lazy var pageFactory = PageFactoryImplementation(
+    private lazy var pageLoaderFactory = PageLoaderFactory(
         genreListLoader: GenreListLoaderImplementation(dataLoader: dataLoader, logger: logger, cache: cache24h),
         movieListLoader: MovieListLoaderImplementation(dataLoader: dataLoader, logger: logger, cache: cache),
         imageLoader: imageLoader,
@@ -26,7 +26,7 @@ final class ServiceProviderImplementation: ServiceProvider {
         dataLoader
     }
     
-    func providePageFactory() -> PageFactory {
-        pageFactory
+    func providePageLoaderFactory() -> PageLoaderFactory {
+        pageLoaderFactory
     }
 }

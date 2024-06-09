@@ -9,8 +9,9 @@ public enum PageLoaderState {
 }
 
 /// Interface for a loadable page.
-public protocol Page {
-    var view: AnyView { get }
+public protocol Page<Content> {
+    associatedtype Content: View
+    var view: Content { get }
     var title: String { get }
     var loadingStatePublisher: AnyPublisher<PageLoaderState, Never> { get }
     var titleDisplayMode: ToolbarTitleDisplayMode { get }
@@ -19,11 +20,11 @@ public protocol Page {
 
 /// This view take care of the different state of loadable pages. It shows a loading indicator then the page is loading,
 /// an error view if an error occurred and the page itself if it is loaded.
-public struct PageLoader: View {
-    let page: any Page
+public struct PageLoader<Content: View>: View{
+    let page: any Page<Content>
     @State private var state: PageLoaderState = .loading
     
-    public init(page: any Page) {
+    public init(page: any Page<Content>) {
         self.page = page
         
         page.load()
