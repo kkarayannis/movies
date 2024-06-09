@@ -10,8 +10,8 @@ final class MovieListPage: Page {
         self.viewModel = viewModel
     }
     
-    var view: AnyView {
-        AnyView(MovieListView(viewModel: viewModel))
+    var view: MovieListView {
+        MovieListView(viewModel: viewModel)
     }
     
     var title: String {

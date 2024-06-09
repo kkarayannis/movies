@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 import ImageLoader
 import PageLoader
@@ -8,15 +9,7 @@ enum PageType: Hashable {
     case movieList(genre: Genre)
 }
 
-/// Responsible for creating pages.
-protocol PageFactory {
-    /// Creates page for a certain type.
-    /// - Parameter type: The page type that will be created.
-    /// - Returns: A Page for a given type that will be used by PageLoader.
-    func createPage(for type: PageType) -> any Page
-}
-
-final class PageFactoryImplementation: PageFactory {
+final class PageLoaderFactory {
     private let genreListLoader: GenreListLoader
     private let movieListLoader: MovieListLoader
     private let imageLoader: ImageLoader
@@ -34,27 +27,28 @@ final class PageFactoryImplementation: PageFactory {
         self.logger = logger
     }
     
-    func createPage(for type: PageType) -> Page {
+    @ViewBuilder
+    func createPageLoader(for type: PageType) -> some View {
         switch type {
         case .genreList:
-            createGenreListPage()
+            createGenreListPageLoader()
         case .movieList(let genre):
-            createMovieListPage(genre: genre)
+            createMovieListPageLoader(genre: genre)
         }
     }
     
-    private func createGenreListPage() -> any Page {
+    private func createGenreListPageLoader() -> PageLoader<GenreListView> {
         let viewModel = GenreListViewModel(genreListLoader: genreListLoader, logger: logger)
-        return GenreListPage(viewModel: viewModel)
+        return PageLoader(page: GenreListPage(viewModel: viewModel))
     }
     
-    private func createMovieListPage(genre: Genre) -> any Page {
+    private func createMovieListPageLoader(genre: Genre) -> PageLoader<MovieListView> {
         let viewModel = MovieListViewModel(
             genre: genre,
             movieListLoader: movieListLoader,
             imageLoader: imageLoader,
             logger: logger
         )
-        return MovieListPage(viewModel: viewModel)
+        return PageLoader(page: MovieListPage(viewModel: viewModel))
     }
 }

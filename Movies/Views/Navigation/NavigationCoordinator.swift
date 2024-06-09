@@ -5,18 +5,13 @@ import PageLoader
 /// The view that is responsible for Navigation.
 struct NavigationCoordinator: View {
     let rootPageType: PageType
-    let pageFactory: PageFactory
-    
-    var rootPage: any Page {
-        pageFactory.createPage(for: rootPageType)
-    }
+    let pageLoaderFactory: PageLoaderFactory
         
     var body: some View {
         NavigationStack {
-            PageLoader(page: rootPage)
+            pageLoaderFactory.createPageLoader(for: rootPageType)
                 .navigationDestination(for: PageType.self, destination: { pageType in
-                    let destinationPage = pageFactory.createPage(for: pageType)
-                    PageLoader(page: destinationPage)
+                    pageLoaderFactory.createPageLoader(for: pageType)
                 })
         }
     }

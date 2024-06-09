@@ -10,8 +10,8 @@ final class GenreListPage: Page {
         self.viewModel = viewModel
     }
     
-    var view: AnyView {
-        AnyView(GenreListView(viewModel: viewModel))
+    var view: GenreListView {
+        GenreListView(viewModel: viewModel)
     }
     
     var title: String {
